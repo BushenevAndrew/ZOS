@@ -34,9 +34,7 @@ mode_t parse_symbolic_mode(const char *mode_str, mode_t current_mode) {
     mode_t new_mode = current_mode;
     const char *p = mode_str;
     
-    // Проверяем простой случай без указания категории (например, +x)
     if (mode_str[0] == '+' || mode_str[0] == '-' || mode_str[0] == '=') {
-        // Это форма без указания категории, значит применяется ко всем
         char op = mode_str[0];
         p = mode_str + 1;
         
@@ -56,10 +54,7 @@ mode_t parse_symbolic_mode(const char *mode_str, mode_t current_mode) {
                 new_mode &= ~perm_mask;
                 break;
             case '=':
-                // Для = нужно сбросить все, а потом установить указанные
-                // Сначала сбрасываем все стандартные права
                 new_mode &= ~(S_IRWXU | S_IRWXG | S_IRWXO);
-                // Устанавливаем указанные
                 new_mode |= perm_mask;
                 break;
         }
@@ -67,9 +62,7 @@ mode_t parse_symbolic_mode(const char *mode_str, mode_t current_mode) {
         return new_mode;
     }
     
-    // Обработка формы с указанием категории (u, g, o, a)
     while (*p) {
-        // Определяем, какие категории пользователей затронуты
         mode_t who_mask = 0;
         while (*p) {
             if (*p == 'u') who_mask |= (S_IRUSR | S_IWUSR | S_IXUSR);
@@ -79,21 +72,18 @@ mode_t parse_symbolic_mode(const char *mode_str, mode_t current_mode) {
             else break;
             p++;
         }
-        
-        // Если не указаны категории, по умолчанию 'a' (all)
+
         if (who_mask == 0) {
             who_mask = (S_IRWXU | S_IRWXG | S_IRWXO);
         }
         
-        // Операция: +, - или =
         char op = *p;
         if (op != '+' && op != '-' && op != '=') {
             fprintf(stderr, "Неверная операция: %c\n", op);
             exit(EXIT_FAILURE);
         }
         p++;
-        
-        // Определяем, какие права меняем
+
         mode_t perm_mask = 0;
         while (*p && *p != ',') {
             if (*p == 'r') perm_mask |= (S_IRUSR | S_IRGRP | S_IROTH);
@@ -102,7 +92,6 @@ mode_t parse_symbolic_mode(const char *mode_str, mode_t current_mode) {
             p++;
         }
         
-        // Применяем операцию только к указанным категориям
         mode_t effective_perm = perm_mask & who_mask;
         
         switch (op) {
@@ -113,14 +102,10 @@ mode_t parse_symbolic_mode(const char *mode_str, mode_t current_mode) {
                 new_mode &= ~effective_perm;
                 break;
             case '=':
-                // Сначала сбрасываем все права для указанных категорий
                 new_mode &= ~who_mask;
-                // Затем устанавливаем указанные права
                 new_mode |= effective_perm;
                 break;
         }
-        
-        // Пропускаем запятую для следующей операции
         if (*p == ',') p++;
     }
     
@@ -143,10 +128,8 @@ int main(int argc, char *argv[]) {
 
     mode_t new_mode;
     if (mode_str[0] >= '0' && mode_str[0] <= '7') {
-        // Числовой режим
         new_mode = parse_numeric_mode(mode_str);
     } else {
-        // Символьный режим
         new_mode = parse_symbolic_mode(mode_str, file_stat.st_mode);
     }
 

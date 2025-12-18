@@ -5,18 +5,15 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-// Обработчик для atexit
 void exit_handler(void) {
     printf("Обработчик atexit: процесс завершается.\n");
 }
 
-// Обработчик для SIGINT
 void sigint_handler(int sig) {
     printf("Получен сигнал SIGINT (%d)\n", sig);
     exit(0);
 }
 
-// Обработчик для SIGTERM
 void sigterm_handler(int sig) {
     printf("Получен сигнал SIGTERM (%d)\n", sig);
     exit(0);
@@ -26,27 +23,22 @@ int main() {
     pid_t pid;
     int status;
 
-    // Регистрация обработчика atexit
     atexit(exit_handler);
 
-    // Установка обработчиков для SIGINT и SIGTERM
     signal(SIGINT, sigint_handler);
     signal(SIGTERM, sigterm_handler);
 
-    // Вызов fork()
     pid = fork();
 
     if (pid < 0) {
         perror("Ошибка вызова fork");
         exit(1);
     } else if (pid == 0) {
-        // Дочерний процесс
         printf("Дочерний процесс: PID = %d, PPID = %d\n", getpid(), getppid());
-        sleep(5); // Для демонстрации
+        sleep(5);
     } else {
-        // Родительский процесс
         printf("Родительский процесс: PID = %d, PPID = %d\n", getpid(), getppid());
-        wait(&status); // Ожидание завершения дочернего процесса
+        wait(&status);
         if (WIFEXITED(status)) {
             printf("Дочерний процесс завершился с кодом %d\n", WEXITSTATUS(status));
         }

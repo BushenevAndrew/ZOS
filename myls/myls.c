@@ -11,14 +11,13 @@
 #include <unistd.h>
 #include <errno.h>
 
-// ANSI коды цветов
 #define RESET   "\x1B[0m"
 #define BLUE    "\x1B[1;94m"
 #define GREEN   "\x1B[1;92m"
 #define CYAN    "\x1B[1;96m"
 
-int show_all = 0; // -a
-int long_list = 0; // -l
+int show_all = 0;
+int long_list = 0;
 
 void print_permissions(mode_t mode) {
     printf((S_ISDIR(mode)) ? "d" : (S_ISLNK(mode)) ? "l" : "-");
@@ -36,15 +35,13 @@ void print_permissions(mode_t mode) {
 void print_file_info(const char *path, const char *name) {
     struct stat st;
     char full_path[1024];
-    
-    // Формируем полный путь
+
     if (strcmp(path, ".") == 0) {
         snprintf(full_path, sizeof(full_path), "%s", name);
     } else {
         snprintf(full_path, sizeof(full_path), "%s/%s", path, name);
     }
-    
-    // Используем lstat для отслеживания символических ссылок
+
     if (lstat(full_path, &st) == -1) {
         perror("lstat");
         return;
@@ -68,7 +65,6 @@ void print_file_info(const char *path, const char *name) {
         printf(" ");
     }
 
-    // Цветовое выделение
     if (S_ISDIR(st.st_mode)) {
         printf(BLUE "%s" RESET, name);
     } else if (S_ISLNK(st.st_mode)) {
@@ -102,7 +98,6 @@ void list_directory(const char *path) {
     char **names = NULL;
     int count = 0;
 
-    // Сбор имён с учётом -a
     while ((entry = readdir(dir)) != NULL) {
         if (!show_all && entry->d_name[0] == '.') {
             continue;
@@ -112,7 +107,6 @@ void list_directory(const char *path) {
         count++;
     }
 
-    // Сортировка по алфавиту
     for (int i = 0; i < count - 1; i++) {
         for (int j = i + 1; j < count; j++) {
             if (strcmp(names[i], names[j]) > 0) {
@@ -123,7 +117,6 @@ void list_directory(const char *path) {
         }
     }
 
-    // Вывод
     for (int i = 0; i < count; i++) {
         print_file_info(path, names[i]);
         free(names[i]);
@@ -134,7 +127,7 @@ void list_directory(const char *path) {
 }
 
 int main(int argc, char *argv[]) {
-    extern int optind;  // Объявление переменной из getopt
+    extern int optind;
     int opt;
     
     while ((opt = getopt(argc, argv, "la")) != -1) {
