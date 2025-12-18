@@ -11,10 +11,10 @@
 #include <unistd.h>
 #include <errno.h>
 
-#define RESET   "\x1B[0m"
-#define BLUE    "\x1B[1;94m"
-#define GREEN   "\x1B[1;92m"
-#define CYAN    "\x1B[1;96m"
+#define RESET   "\033[0m"
+#define BLUE    "\033[1;94m"
+#define GREEN   "\033[1;92m"
+#define CYAN    "\033[1;96m"
 
 int show_all = 0;
 int long_list = 0;
