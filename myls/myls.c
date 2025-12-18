@@ -13,9 +13,9 @@
 
 // ANSI коды цветов
 #define RESET   "\x1B[0m"
-#define BLUE    "\x1B[34m"
-#define GREEN   "\x1B[32m"
-#define CYAN    "\x1B[36m"
+#define BLUE    "\x1B[1;94m"
+#define GREEN   "\x1B[1;92m"
+#define CYAN    "\x1B[1;96m"
 
 int show_all = 0; // -a
 int long_list = 0; // -l
@@ -84,7 +84,7 @@ void print_file_info(const char *path, const char *name) {
         ssize_t len = readlink(full_path, link_target, sizeof(link_target) - 1);
         if (len != -1) {
             link_target[len] = '\0';
-            printf(" -> %s", link_target);
+            printf(BLUE " -> %s" RESET, link_target);
         }
     }
 
