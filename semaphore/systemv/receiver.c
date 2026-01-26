@@ -11,25 +11,23 @@
 
 int main() {
     key_t key = ftok("shmfile", 65);
-    int shmid = shmget(key, SHM_SIZE, 0666 | IPC_CREAT);
-    int semid = semget(key, 1, 0666 | IPC_CREAT);
+    int shmid = shmget(key, SHM_SIZE, 0666);
+    int semid = semget(key, 1, 0666);
 
     char *shm = (char*)shmat(shmid, NULL, 0);
 
-    struct sembuf sb = {0, -1, 0};
+    struct sembuf sb = {0, -1, 0}; // Операция P (ожидание)
 
     while (1) {
-        sb.sem_op = -1;
+        sb.sem_op = -1; // Ожидание семафора
         semop(semid, &sb, 1);
 
         time_t now = time(NULL);
         pid_t pid = getpid();
         printf("Receiver (PID: %d, Time: %s): %s\n", pid, ctime(&now), shm);
-
-        sb.sem_op = 1;
-        semop(semid, &sb, 1);
     }
 
+    // Деинициализация
     shmdt(shm);
     return 0;
 }

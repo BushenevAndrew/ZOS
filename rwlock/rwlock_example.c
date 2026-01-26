@@ -1,4 +1,3 @@
-// rwlock_example.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -16,7 +15,7 @@ void* writer_thread(void* arg) {
         pthread_rwlock_wrlock(&rwlock);
         snprintf(shared_buffer, BUFFER_SIZE, "%09d", counter++);
         pthread_rwlock_unlock(&rwlock);
-        usleep(100000);
+        usleep(100000); // Имитация работы
     }
     return NULL;
 }
@@ -27,7 +26,6 @@ void* reader_thread(void* arg) {
         pthread_rwlock_rdlock(&rwlock);
         printf("Reader %ld: %s\n", tid, shared_buffer);
         pthread_rwlock_unlock(&rwlock);
-        usleep(150000);
     }
     return NULL;
 }
@@ -53,6 +51,6 @@ int main() {
         pthread_join(readers[i], NULL);
     }
 
-    pthread_rwlock_destroy(&rwlock);
+    // Удаление destroy для статической инициализации
     return 0;
 }
